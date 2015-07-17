@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Bike Dekho Proj</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_filter">FilterActivity</string>
+    <string name="sort_by">SORT BY</string>
+    <string name="price">PRICE</string>
+    <string name="brand">BRAND</string>
+    <string name="engine">ENGINE</string>
+    <string name="style">STYLE</string>
+    <string name="ignition">IGNITION</string>
+</resources>
