@@ -5,4 +5,5 @@
     <color name="gray">#d3d3d3</color>
     <color name="black">#000000</color>
     <color name="red">#9F2200</color>
+    <color name="cb_background">#f6f6f6</color>
 </resources>

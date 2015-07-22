@@ -3,16 +3,13 @@ package com.karan.bikedekhoproject;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.android.volley.toolbox.ImageLoader;
@@ -24,14 +21,17 @@ import com.karan.bikedekhoproject.Engine.Session;
 import com.karan.bikedekhoproject.Entity.Bike;
 import com.karan.bikedekhoproject.Entity.FilterElements;
 import com.karan.bikedekhoproject.Entity.FilterParams;
+import com.karan.bikedekhoproject.Entity.Selection;
 import com.karan.bikedekhoproject.Utils.MyEvents;
+import com.karan.bikedekhoproject.Utils.ProgressDialogTestValue;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import de.greenrobot.event.EventBus;
 
 import java.util.ArrayList;
+
+import de.greenrobot.event.EventBus;
 
 
 public class ViewActivity extends ActionBarActivity {
@@ -53,16 +53,17 @@ public class ViewActivity extends ActionBarActivity {
     private int totalCount;
     private int count = 1;
     boolean flag = true;
-    private ProgressBar progressBar;
+    private View progressBar;
     private ProgressDialog progressDialog;
     int visibleItemCount, pastVisiblesItems, totalItemCount;
+    private Selection price, brands, engine, style, ignition, sort;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view);
 
-        progressBar = (ProgressBar)findViewById(R.id.progressBar);
+        progressBar = (View)findViewById(R.id.progress);
         progressBar.setVisibility(View.GONE);
 
         progressDialog = new ProgressDialog(ViewActivity.this);
@@ -83,17 +84,15 @@ public class ViewActivity extends ActionBarActivity {
                 pastVisiblesItems = llm.findFirstVisibleItemPosition();
 
 
-                if(flag&&visibleItemCount == totalItemCount - pastVisiblesItems&&totalCount>count*20)
-                {
+                if (flag && visibleItemCount == totalItemCount - pastVisiblesItems && totalCount > count * 20) {
                     progressBar.setVisibility(View.VISIBLE);
+                    ProgressDialogTestValue.showDialog(getApplicationContext(),progressBar);
                     flag = false;
-                    Toast.makeText(getApplicationContext(),"Loading more bikes",Toast.LENGTH_LONG).show();
                     count++;
                     try {
                         filterLoad();
-                    }catch (Exception e)
-                    {
-                        Toast.makeText(getApplicationContext(),"Something went wrong",Toast.LENGTH_LONG).show();
+                    } catch (Exception e) {
+                        Toast.makeText(getApplicationContext(), "Something went wrong", Toast.LENGTH_LONG).show();
                     }
                 }
 
@@ -119,6 +118,19 @@ public class ViewActivity extends ActionBarActivity {
                 if (filterElements != null) {
                     Intent i = new Intent(getApplicationContext(), FilterActivity.class);
                     i.putExtra("filterList", filterElements);
+
+                    if(price!=null)
+                    {
+                        i.putExtra("price", price);
+                        i.putExtra("brands", brands);
+                        i.putExtra("engine", engine);
+                        i.putExtra("style", style);
+                        i.putExtra("ignition", ignition);
+                        i.putExtra("sort", sort);
+                    }
+
+                   // price, brands, engine, style, ignition, sort;
+
                     startActivityForResult(i, 12);
                 }
             }
@@ -153,11 +165,11 @@ public class ViewActivity extends ActionBarActivity {
 
     public void filterLoad() throws JSONException {
         JsonObjectRequest req;
-        if(count!=1)
-            req = Session.getmInstance().generateFilterRequest("http://api.testing.bikedekho.com/v1/test/result?_format=json", filter, String.valueOf(count*10), String.valueOf(count*20), sortingMethod);
-       else
+        if(count!=1) {
+            req = Session.getmInstance().generateFilterRequest("http://api.testing.bikedekho.com/v1/test/result?_format=json", filter, String.valueOf(count * 10), String.valueOf(count * 20), sortingMethod);
+        }else {
             req = Session.getmInstance().generateFilterRequest("http://api.testing.bikedekho.com/v1/test/result?_format=json", filter, String.valueOf(1), String.valueOf(20), sortingMethod);
-
+        }
         addReqToQueue(req, "bikesFilter");
     }
 
@@ -202,7 +214,11 @@ public class ViewActivity extends ActionBarActivity {
 
                         totalCount = Integer.valueOf(data.getString("count"));
 
-                        for (int i = 0; i < newBikes.length(); i++) {
+                        int size; if(newBikes.length()>20) size=20; else size=newBikes.length();  //using 20 instead of newBikes.length() since server is returning 40 units
+
+                        for (int i = 0; i < size; i++) {
+                           if(newBikes.get(i)!=null){
+                            Log.d("Bikes Length",String.valueOf(newBikes.length()));
                             bike = new Bike();
                             bike.setCc(newBikes.getJSONObject(i).getString("engineCapacity"));
                             bike.setAmount(newBikes.getJSONObject(i).getString("price"));
@@ -210,7 +226,7 @@ public class ViewActivity extends ActionBarActivity {
                             bike.setName(newBikes.getJSONObject(i).getString("display_name"));
                             bike.setImageURL(newBikes.getJSONObject(i).getString("image"));
                             bikes.add(bike);
-                            bike = null;
+                            bike = null;}
                         }
                         rv.setLayoutManager(llm);
 
@@ -269,12 +285,23 @@ public class ViewActivity extends ActionBarActivity {
                 Bundle b = data.getExtras();
                 if (b != null) {
                     try {
-
                         filter = null;
                         filter = new JSONObject(b.getSerializable("filter").toString());
-                        if(b.getSerializable("sort")!=null) sortingMethod = b.getSerializable("sort").toString();
+
+                        //get the selections
+
+                        //price, brands, engine, style, ignition, sort;
+
+                        price = (Selection)b.getSerializable("price");
+                        brands = (Selection)b.getSerializable("brands");
+                        engine = (Selection)b.getSerializable("engine");
+                        style = (Selection)b.getSerializable("style");
+                        ignition = (Selection)b.getSerializable("ignition");
+                        sort = (Selection)b.getSerializable("sort");
 
 
+                        MyEvents.JSON_FILTER = filter;
+                        if(b.getSerializable("sortingMethod")!=null) sortingMethod = b.getSerializable("sortingMethod").toString();
                         Log.d("Filter :", filter.toString());
                         progressBar.setVisibility(View.GONE);
                         bikes = new ArrayList<Bike>();

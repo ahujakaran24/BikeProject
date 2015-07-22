@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:id="@+id/content"
-        android:textSize="25sp"
+        android:textSize="20sp"
         android:padding="15dp"
         android:text="content"/>
 

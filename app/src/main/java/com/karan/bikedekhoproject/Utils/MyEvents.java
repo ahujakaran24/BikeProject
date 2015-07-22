@@ -1,5 +1,7 @@
 package com.karan.bikedekhoproject.Utils;
 
+import org.json.JSONObject;
+
 import java.util.Objects;
 
 /**
@@ -9,6 +11,8 @@ public class MyEvents {
 
     public static final int BIKE_RESPONSE = 1;
     public static final int FILTER_RESPONSE = 2;
+
+    public static JSONObject JSON_FILTER = null;
 
     private boolean status;
     private int type;

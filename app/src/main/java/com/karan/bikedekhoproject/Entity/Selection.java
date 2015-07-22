@@ -1,5 +1,6 @@
 package com.karan.bikedekhoproject.Entity;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -7,7 +8,7 @@ import java.util.ArrayList;
  */
 
 /*Maintains selection of items clicked on filter*/
-public class Selection {
+public class Selection implements Serializable{
 
     ArrayList<String> selected;
     ArrayList<String> checkedPosition;

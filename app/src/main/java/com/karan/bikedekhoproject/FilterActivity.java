@@ -47,12 +47,22 @@ public class FilterActivity extends Activity implements ChangeSelectionListener 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_filter);
 
-        price = new Selection();
-        brands = new Selection();
-        engine = new Selection();
-        style = new Selection();
-        ignition = new Selection();
-        sort = new Selection();
+
+        if(getIntent().getSerializableExtra("price")==null) {
+            price = new Selection();
+            brands = new Selection();
+            engine = new Selection();
+            style = new Selection();
+            ignition = new Selection();
+            sort = new Selection();
+        }else{
+            price = (Selection)getIntent().getSerializableExtra("price");
+            brands = (Selection)getIntent().getSerializableExtra("brands");
+            engine = (Selection)getIntent().getSerializableExtra("engine");
+            style = (Selection)getIntent().getSerializableExtra("style");
+            ignition = (Selection)getIntent().getSerializableExtra("ignition");
+            sort = (Selection)getIntent().getSerializableExtra("sort");
+        }
 
         filter = new JSONObject();
 
@@ -154,7 +164,15 @@ public class FilterActivity extends Activity implements ChangeSelectionListener 
 
                 Intent intent = new Intent();
                 intent.putExtra("filter", filter.toString());
-                if(sortingMethod!=null) intent.putExtra("sort", sortingMethod);
+                //Send out the selections for later return use
+                intent.putExtra("price",price);
+                intent.putExtra("engine",engine);
+                intent.putExtra("brands",brands);
+                intent.putExtra("style",style);
+                intent.putExtra("ignition",ignition);
+                intent.putExtra("sort",sort);
+
+                if(sortingMethod!=null) intent.putExtra("sortingMethod", sortingMethod);
                 setResult(Activity.RESULT_OK, intent);
                 finish();
             }
